@@ -1,0 +1,22 @@
+version: '3.3'
+
+services:
+  rblog:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    image: rblog.io:1.0.0
+    container_name: rblog
+    restart: always
+    security_opt:
+      - no-new-privileges:true
+    ports:
+      - "8080:8080"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+    networks:
+      - proxy
+
+networks:
+  proxy:
+    external: true

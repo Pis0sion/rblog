@@ -1,0 +1,20 @@
+Server:
+  RunMode: debug
+  HttpPort: 8080
+  ReadTimeout: 30
+  WriteTimeout: 30
+
+App:
+  DefaultPageSize: 10
+  MaxPageSize: 100
+
+DataBase:
+  UserName: root
+  Password: zihuang2010=-0
+  Host: rm-2zeb4217b447ax095uo.mysql.rds.aliyuncs.com
+  Database: rblog
+  Charset: utf8mb4
+  ParseTime: True
+  MaxIdleConnections: 10
+  MaxOpenConnections: 30
+  MaxConnectionLifeTime: 30
