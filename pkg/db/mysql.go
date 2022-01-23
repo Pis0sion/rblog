@@ -2,6 +2,7 @@ package db
 
 import (
 	"fmt"
+	"gorm.io/gorm/schema"
 	"time"
 
 	"gorm.io/driver/mysql"
@@ -37,6 +38,11 @@ func New(opts *Options) (*gorm.DB, error) {
 		"Local")
 
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
+		SkipDefaultTransaction: true,
+		NamingStrategy: schema.NamingStrategy{
+			TablePrefix:   "",
+			SingularTable: false,
+		},
 		Logger: opts.Logger,
 	})
 	if err != nil {

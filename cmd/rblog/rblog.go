@@ -18,5 +18,5 @@ func main() {
 		runtime.GOMAXPROCS(runtime.NumCPU())
 	}
 
-	rblog.NewApp().Run()
+	rblog.NewApp("rblog").Run()
 }
