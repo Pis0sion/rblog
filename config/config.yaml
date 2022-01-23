@@ -11,7 +11,7 @@ App:
 DataBase:
   UserName: root
   Password: zihuang2010=-0
-  Host: rm-2zeb4217b447ax095uo.mysql.rds.aliyuncs.com
+  Host: rm-bp1303qu1t684d2kj.mysql.rds.aliyuncs.com
   Database: rblog
   Charset: utf8mb4
   ParseTime: True

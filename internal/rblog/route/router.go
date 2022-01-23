@@ -1,7 +1,8 @@
 package route
 
 import (
-	v1 "github.com/Pis0sion/rblog/internal/rblog/route/api/v1"
+	article2 "github.com/Pis0sion/rblog/internal/rblog/route/api/v1/article"
+	v1 "github.com/Pis0sion/rblog/internal/rblog/route/api/v1/article-tags"
 	"github.com/gin-gonic/gin"
 )
 
@@ -9,7 +10,7 @@ import (
 // load routers
 func InitializeRouters(engine *gin.Engine) {
 
-	article := v1.NewArticle()
+	article := article2.NewArticle()
 	articleTag := v1.NewArticleTag()
 
 	apiV1 := engine.Group("/api/v1")

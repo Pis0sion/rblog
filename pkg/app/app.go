@@ -11,9 +11,9 @@ type Response struct {
 }
 
 type Paginate struct {
-	Page       int `json:"page"`
-	PageSize   int `json:"pageSize"`
-	TotalCount int `json:"totalCount"`
+	Page       int   `json:"page"`
+	PageSize   int   `json:"pageSize"`
+	TotalCount int64 `json:"totalCount"`
 }
 
 type unifiedRespBody struct {
@@ -41,7 +41,7 @@ func (r Response) ToResponse(respData interface{}) {
 	r.ctx.JSON(http.StatusOK, newUnifiedRespBody(errs.Success, respData))
 }
 
-func (r Response) ToResponseList(respData interface{}, totalCount int) {
+func (r Response) ToResponseList(respData interface{}, totalCount int64) {
 
 	r.ctx.JSON(http.StatusOK, newUnifiedRespBody(errs.Success, gin.H{
 		"list": respData,

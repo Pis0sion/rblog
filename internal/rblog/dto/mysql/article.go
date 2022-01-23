@@ -15,14 +15,23 @@ func newArticles(db *gorm.DB) dto.ArticleDto {
 	return &articles{dbIns: db}
 }
 
-func (a *articles) GetArticleList(ctx context.Context) (list []*dto.ArticleEntity, err error) {
+func (a *articles) Create(ctx context.Context, articleEntity *dto.ArticleEntity) error {
+
+	article := mod.Article{
+		Title: articleEntity.Title,
+	}
+
+	return article.Create(a.dbIns)
+}
+
+func (a *articles) GetArticleList(context.Context) (list []*dto.ArticleEntity, count int64, err error) {
 
 	article := mod.Article{
 		Title: "",
 		State: 0,
 	}
 
-	articleList, _ := article.List(a.dbIns, 0, 10)
+	articleList, count, _ := article.List(a.dbIns, 0, 10)
 
 	for _, item := range articleList {
 		list = append(
@@ -34,5 +43,5 @@ func (a *articles) GetArticleList(ctx context.Context) (list []*dto.ArticleEntit
 		)
 	}
 
-	return list, nil
+	return list, count, nil
 }

@@ -11,7 +11,12 @@ type Article struct {
 	CreatedAt time.Time `gorm:"column:createdAt"`
 }
 
-func (a Article) List(db *gorm.DB, pageOffset, pageSize int) (articles []*Article, err error) {
+func (a Article) Create(db *gorm.DB) error {
+
+	return db.Create(&a).Error
+}
+
+func (a Article) List(db *gorm.DB, pageOffset, pageSize int) (articles []*Article, count int64, err error) {
 
 	if pageOffset >= 0 && pageSize >= 0 {
 		db = db.Offset(pageOffset).Limit(pageSize)
@@ -22,9 +27,9 @@ func (a Article) List(db *gorm.DB, pageOffset, pageSize int) (articles []*Articl
 	}
 	db = db.Where("status = ?", a.State)
 
-	if err = db.Find(&articles).Error; err != nil {
-		return nil, err
+	if err = db.Find(&articles).Offset(-1).Limit(-1).Count(&count).Error; err != nil {
+		return nil, 0, err
 	}
 
-	return articles, err
+	return articles, count, err
 }

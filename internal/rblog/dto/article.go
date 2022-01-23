@@ -3,7 +3,8 @@ package dto
 import "context"
 
 type ArticleDto interface {
-	GetArticleList(ctx context.Context) ([]*ArticleEntity, error)
+	Create(ctx context.Context, articleEntity *ArticleEntity) error
+	GetArticleList(ctx context.Context) ([]*ArticleEntity, int64, error)
 }
 
 type ArticleEntity struct {
