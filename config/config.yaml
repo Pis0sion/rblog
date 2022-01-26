@@ -31,3 +31,7 @@ Redis:
   MaxActive: 500
   EnableCluster: false
   Timeout: 30
+
+Grpc:
+  Address: 127.0.0.1
+  Port: 8081

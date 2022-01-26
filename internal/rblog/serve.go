@@ -2,6 +2,7 @@ package rblog
 
 import (
 	"context"
+	"fmt"
 	"github.com/Pis0sion/rblog/internal/pkg/serve"
 	"github.com/Pis0sion/rblog/internal/rblog/cfg"
 	"github.com/Pis0sion/rblog/internal/rblog/dto"
@@ -9,9 +10,11 @@ import (
 	"github.com/Pis0sion/rblog/internal/rblog/opts"
 	"github.com/Pis0sion/rblog/internal/rblog/route"
 	"github.com/Pis0sion/rblog/pkg/db"
+	"google.golang.org/grpc"
 )
 
 type ApplicationServe struct {
+	grpcServe *grpcServe
 	httpServe *serve.GenericServe
 }
 
@@ -20,6 +23,7 @@ type PrepareApplicationServe struct {
 }
 
 type ExtraComponents struct {
+	grpcOptions  *opts.GrpcOpts
 	mysqlOptions *opts.MysqlOpts
 	redisOptions *opts.RedisOpts
 }
@@ -29,6 +33,7 @@ type CompleteExtraComponents struct {
 }
 
 func CreateApplicationServe(configure *cfg.Configure) (*ApplicationServe, error) {
+	var grpcServe *grpcServe
 
 	genericConfigure, err := buildGenericServe(configure)
 
@@ -40,40 +45,57 @@ func CreateApplicationServe(configure *cfg.Configure) (*ApplicationServe, error)
 
 	httpServe := genericConfigure.Complete().New()
 
-	if err = extraConfigure.Complete().New(); err != nil {
+	if grpcServe, err = extraConfigure.Complete().New(); err != nil {
 		return nil, err
 	}
 
-	return &ApplicationServe{httpServe: httpServe}, nil
+	return &ApplicationServe{httpServe: httpServe, grpcServe: grpcServe}, nil
 }
 
 func (app *ApplicationServe) PrepareRun() *PrepareApplicationServe {
 
 	route.InitializeRouters(app.httpServe.Engine)
-
 	return &PrepareApplicationServe{app}
 }
 
 func (serve *PrepareApplicationServe) Run() error {
+	serve.grpcServe.Run()
 	return serve.httpServe.Run()
 }
 
 func (e *ExtraComponents) Complete() *CompleteExtraComponents {
+
+	if e.grpcOptions.Address == "" {
+		e.grpcOptions.Address = "127.0.0.1"
+	}
+
+	if e.grpcOptions.Port == 0 {
+		e.grpcOptions.Port = 8081
+	}
+
 	return &CompleteExtraComponents{e}
 }
 
-func (c *CompleteExtraComponents) New() error {
+func (c *CompleteExtraComponents) New() (*grpcServe, error) {
 	// initialize mysql
 	agent, err := mysql.GetDatabaseFactoryEntity(c.mysqlOptions)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	dto.SetClient(agent)
 
 	// initialize redis
 	initializeRedis(c.redisOptions)
 
-	return nil
+	// initialize grpc
+	gServe := grpc.NewServer()
+
+	// pb
+
+	return &grpcServe{
+		address: fmt.Sprintf("%s:%d", c.grpcOptions.Address, c.grpcOptions.Port),
+		Server:  gServe,
+	}, nil
 }
 
 func buildGenericServe(configure *cfg.Configure) (genericConfigure *serve.GenericConfigure, err error) {
@@ -88,6 +110,7 @@ func buildGenericServe(configure *cfg.Configure) (genericConfigure *serve.Generi
 
 func buildExtraComponents(configure *cfg.Configure) (extraConfigure *ExtraComponents, err error) {
 	return &ExtraComponents{
+		grpcOptions:  configure.GrpcOpts,
 		mysqlOptions: configure.MysqlOpts,
 		redisOptions: configure.RedisOpts,
 	}, nil
