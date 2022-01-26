@@ -18,3 +18,16 @@ DataBase:
   MaxIdleConnections: 10
   MaxOpenConnections: 30
   MaxConnectionLifeTime: 30
+
+Redis:
+  Host: 172.18.0.5
+  Port: 6379
+  Address: ""
+  Username: root
+  Password: zihuang2010=-0
+  Database: 0
+  MasterName: ""
+  MinIdleConns: 100
+  MaxActive: 500
+  EnableCluster: false
+  Timeout: 30

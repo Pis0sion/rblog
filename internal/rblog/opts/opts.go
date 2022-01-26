@@ -9,6 +9,7 @@ type Opts struct {
 	SrvOpts   *SrvOpts
 	AppOpts   *AppOpts
 	MysqlOpts *MysqlOpts
+	RedisOpts *RedisOpts
 }
 
 func NewOptions() (*Opts, error) {
@@ -17,6 +18,7 @@ func NewOptions() (*Opts, error) {
 		srvOpts   *SrvOpts
 		appOpts   *AppOpts
 		mysqlOpts *MysqlOpts
+		redisOpts *RedisOpts
 	)
 
 	vp, err := vips.NewViper("config", "config", "yaml")
@@ -37,6 +39,9 @@ func NewOptions() (*Opts, error) {
 		return nil, err
 	}
 
+	if err = vp.ReadSection("Redis", &redisOpts); err != nil {
+		return nil, err
+	}
 	srvOpts.ReadTimeout *= time.Second
 	srvOpts.WriteTimeout *= time.Second
 	mysqlOpts.MaxConnectionLifeTime *= time.Minute
@@ -45,5 +50,6 @@ func NewOptions() (*Opts, error) {
 		SrvOpts:   srvOpts,
 		AppOpts:   appOpts,
 		MysqlOpts: mysqlOpts,
+		RedisOpts: redisOpts,
 	}, nil
 }
