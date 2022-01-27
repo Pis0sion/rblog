@@ -12,7 +12,7 @@ type srv struct {
 	dto dto.Factory
 }
 
-func NewSrv() *srv {
+func NewSrv() Service {
 	return &srv{dto: dto.Client()}
 }
 

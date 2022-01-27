@@ -4,11 +4,13 @@ import (
 	"context"
 	"fmt"
 	"github.com/Pis0sion/rblog/internal/pkg/serve"
+	pb "github.com/Pis0sion/rblog/internal/proto/v1"
 	"github.com/Pis0sion/rblog/internal/rblog/cfg"
 	"github.com/Pis0sion/rblog/internal/rblog/dto"
 	"github.com/Pis0sion/rblog/internal/rblog/dto/mysql"
 	"github.com/Pis0sion/rblog/internal/rblog/opts"
 	"github.com/Pis0sion/rblog/internal/rblog/route"
+	"github.com/Pis0sion/rblog/internal/rblog/route/api/v1/cache"
 	"github.com/Pis0sion/rblog/pkg/db"
 	"google.golang.org/grpc"
 )
@@ -91,6 +93,8 @@ func (c *CompleteExtraComponents) New() (*grpcServe, error) {
 	gServe := grpc.NewServer()
 
 	// pb
+	pb.RegisterCacheServer(gServe, cache.NewCache())
+
 
 	return &grpcServe{
 		address: fmt.Sprintf("%s:%d", c.grpcOptions.Address, c.grpcOptions.Port),
