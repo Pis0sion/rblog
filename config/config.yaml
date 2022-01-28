@@ -11,7 +11,7 @@ App:
 DataBase:
   UserName: root
   Password: zihuang2010=-0
-  Host: rm-bp1303qu1t684d2kj.mysql.rds.aliyuncs.com
+  Host: rm-bp1303qu1t684d2kj6o.mysql.rds.aliyuncs.com
   Database: rblog
   Charset: utf8mb4
   ParseTime: True
@@ -20,7 +20,7 @@ DataBase:
   MaxConnectionLifeTime: 30
 
 Redis:
-  Host: 172.18.0.5
+  Host: 116.62.106.24
   Port: 6379
   Address: ""
   Username: root
@@ -33,5 +33,5 @@ Redis:
   Timeout: 30
 
 Grpc:
-  Address: 127.0.0.1
+  Address: 0.0.0.0
   Port: 8081

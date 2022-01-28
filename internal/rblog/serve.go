@@ -66,7 +66,6 @@ func (serve *PrepareApplicationServe) Run() error {
 }
 
 func (e *ExtraComponents) Complete() *CompleteExtraComponents {
-
 	if e.grpcOptions.Address == "" {
 		e.grpcOptions.Address = "0.0.0.0"
 	}
@@ -74,7 +73,6 @@ func (e *ExtraComponents) Complete() *CompleteExtraComponents {
 	if e.grpcOptions.Port == 0 {
 		e.grpcOptions.Port = 8081
 	}
-
 	return &CompleteExtraComponents{e}
 }
 
@@ -86,7 +84,7 @@ func (c *CompleteExtraComponents) New() (*grpcServe, error) {
 	}
 	dto.SetClient(agent)
 	// initialize redis
-	initializeRedis(c.redisOptions)
+	initializeRedis(context.Background(), c.redisOptions)
 	// initialize grpc
 	gServe := grpc.NewServer()
 	// pb
@@ -100,7 +98,6 @@ func (c *CompleteExtraComponents) New() (*grpcServe, error) {
 
 func buildGenericServe(configure *cfg.Configure) (genericConfigure *serve.GenericConfigure, err error) {
 	genericConfigure = serve.NewGenericConfigure()
-
 	if err = configure.SrvOpts.ApplyTo(genericConfigure); err != nil {
 		return nil, err
 	}
@@ -116,8 +113,7 @@ func buildExtraComponents(configure *cfg.Configure) (extraConfigure *ExtraCompon
 	}, nil
 }
 
-func initializeRedis(opts *opts.RedisOpts) {
-
+func initializeRedis(ctx context.Context, opts *opts.RedisOpts) {
 	redisOptions := &db.RedisOptions{
 		Host:          opts.Host,
 		Port:          opts.Port,
@@ -132,5 +128,5 @@ func initializeRedis(opts *opts.RedisOpts) {
 		Timeout:       opts.Timeout,
 	}
 
-	go db.Connect2Redis(context.Background(), redisOptions)
+	go db.Connect2Redis(ctx, redisOptions)
 }

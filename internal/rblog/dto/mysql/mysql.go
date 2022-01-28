@@ -5,6 +5,7 @@ import (
 	"github.com/Pis0sion/rblog/internal/rblog/dto"
 	"github.com/Pis0sion/rblog/internal/rblog/opts"
 	"github.com/Pis0sion/rblog/pkg/db"
+	metav1 "github.com/Pis0sion/rblogrus/store/rblog/v1"
 	"gorm.io/gorm"
 	"sync"
 )
@@ -52,6 +53,9 @@ func GetDatabaseFactoryEntity(opts *opts.MysqlOpts) (dto.Factory, error) {
 			Logger:                nil,
 		}
 		dbIns, err = db.New(options)
+
+		_ = dbIns.AutoMigrate(&metav1.Article{})
+
 		myFactory = &datastore{dbIns}
 	})
 
