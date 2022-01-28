@@ -3,11 +3,13 @@ module github.com/Pis0sion/rblog
 go 1.17
 
 require (
+	github.com/Pis0sion/rblogrus v1.0.0
 	github.com/gin-gonic/gin v1.7.7
 	github.com/go-redis/redis/v8 v8.11.4
 	github.com/satori/go.uuid v1.2.0
 	github.com/spf13/viper v1.10.1
 	google.golang.org/grpc v1.44.0
+	google.golang.org/protobuf v1.27.1
 	gorm.io/driver/mysql v1.2.3
 	gorm.io/gorm v1.22.5
 )
@@ -44,7 +46,6 @@ require (
 	golang.org/x/sys v0.0.0-20220114195835-da31bd327af9 // indirect
 	golang.org/x/text v0.3.7 // indirect
 	google.golang.org/genproto v0.0.0-20220118154757-00ab72f36ad5 // indirect
-	google.golang.org/protobuf v1.27.1 // indirect
 	gopkg.in/ini.v1 v1.66.2 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )

@@ -2,7 +2,7 @@ package cache
 
 import (
 	"context"
-	pb "github.com/Pis0sion/rblog/internal/proto/v1"
+	pb "github.com/Pis0sion/rblogrus/proto/rblog/v1"
 )
 
 type Cache struct {

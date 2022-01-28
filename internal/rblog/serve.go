@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/Pis0sion/rblog/internal/pkg/serve"
-	pb "github.com/Pis0sion/rblog/internal/proto/v1"
 	"github.com/Pis0sion/rblog/internal/rblog/cfg"
 	"github.com/Pis0sion/rblog/internal/rblog/dto"
 	"github.com/Pis0sion/rblog/internal/rblog/dto/mysql"
@@ -12,6 +11,7 @@ import (
 	"github.com/Pis0sion/rblog/internal/rblog/route"
 	"github.com/Pis0sion/rblog/internal/rblog/route/api/v1/cache"
 	"github.com/Pis0sion/rblog/pkg/db"
+	pb "github.com/Pis0sion/rblogrus/proto/rblog/v1"
 	"google.golang.org/grpc"
 )
 
@@ -68,7 +68,7 @@ func (serve *PrepareApplicationServe) Run() error {
 func (e *ExtraComponents) Complete() *CompleteExtraComponents {
 
 	if e.grpcOptions.Address == "" {
-		e.grpcOptions.Address = "127.0.0.1"
+		e.grpcOptions.Address = "0.0.0.0"
 	}
 
 	if e.grpcOptions.Port == 0 {
@@ -85,16 +85,12 @@ func (c *CompleteExtraComponents) New() (*grpcServe, error) {
 		return nil, err
 	}
 	dto.SetClient(agent)
-
 	// initialize redis
 	initializeRedis(c.redisOptions)
-
 	// initialize grpc
 	gServe := grpc.NewServer()
-
 	// pb
 	pb.RegisterCacheServer(gServe, cache.NewCache())
-
 
 	return &grpcServe{
 		address: fmt.Sprintf("%s:%d", c.grpcOptions.Address, c.grpcOptions.Port),

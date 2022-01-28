@@ -133,5 +133,5 @@ var Cache_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "internal/proto/v1/cache.proto",
+	Metadata: "proto/rblog/v1/cache.proto",
 }

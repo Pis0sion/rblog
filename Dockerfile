@@ -30,5 +30,6 @@ ENV GIN_MODE=release \
     PORT=8080
 
 EXPOSE 8080
+EXPOSE 8081
 
 ENTRYPOINT ["./rblog"]
