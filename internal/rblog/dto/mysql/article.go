@@ -3,7 +3,7 @@ package mysql
 import (
 	"context"
 	"github.com/Pis0sion/rblog/internal/rblog/dto"
-	"github.com/Pis0sion/rblog/internal/rblog/mod"
+	metav1 "github.com/Pis0sion/rblogrus/store/rblog/v1"
 	"gorm.io/gorm"
 )
 
@@ -15,33 +15,23 @@ func newArticles(db *gorm.DB) dto.ArticleDto {
 	return &articles{dbIns: db}
 }
 
-func (a *articles) Create(ctx context.Context, articleEntity *dto.ArticleEntity) error {
+func (a articles) GetArticle(ctx context.Context, articleID int) (article *metav1.Article, err error) {
 
-	article := mod.Article{
-		Title: articleEntity.Title,
+	if r := a.dbIns.First(&article, articleID).RowsAffected; r == 0 {
+		return nil, gorm.ErrRecordNotFound
 	}
 
-	return article.Create(a.dbIns)
+	return
 }
 
-func (a *articles) GetArticleList(context.Context) (list []*dto.ArticleEntity, count int64, err error) {
+func (a *articles) CreateArticle(ctx context.Context, article *metav1.Article) error {
+	return a.dbIns.Create(article).Error
+}
 
-	article := mod.Article{
-		Title: "",
-		State: 0,
+func (a *articles) GetArticleList(ctx context.Context, page, pageSize int) (*metav1.ArticleList, error) {
+	articleList := metav1.ArticleList{}
+	if err := a.dbIns.Offset((page - 1) * pageSize).Limit(pageSize).Find(&articleList.Items).Offset(-1).Limit(-1).Count(&articleList.TotalCount).Error; err != nil {
+		return nil, err
 	}
-
-	articleList, count, _ := article.List(a.dbIns, 0, 10)
-
-	for _, item := range articleList {
-		list = append(
-			list, &dto.ArticleEntity{
-				Title:    item.Title,
-				State:    item.State,
-				CreateAt: item.CreatedAt.Format("2006-01-02 15:04:05"),
-			},
-		)
-	}
-
-	return list, count, nil
+	return &articleList, nil
 }

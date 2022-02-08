@@ -1,14 +1,12 @@
 package dto
 
-import "context"
+import (
+	"context"
+	metav1 "github.com/Pis0sion/rblogrus/store/rblog/v1"
+)
 
 type ArticleDto interface {
-	Create(ctx context.Context, articleEntity *ArticleEntity) error
-	GetArticleList(ctx context.Context) ([]*ArticleEntity, int64, error)
-}
-
-type ArticleEntity struct {
-	Title    string `json:"title"`
-	State    int    `json:"state"`
-	CreateAt string `json:"createdAt,omitempty"`
+	GetArticle(ctx context.Context, articleID int) (*metav1.Article, error)
+	CreateArticle(ctx context.Context, article *metav1.Article) error
+	GetArticleList(ctx context.Context, page, pageSize int) (*metav1.ArticleList, error)
 }

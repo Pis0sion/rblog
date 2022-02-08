@@ -9,6 +9,8 @@ type Opts struct {
 	SrvOpts   *SrvOpts
 	AppOpts   *AppOpts
 	MysqlOpts *MysqlOpts
+	RedisOpts *RedisOpts
+	GrpcOpts  *GrpcOpts
 }
 
 func NewOptions() (*Opts, error) {
@@ -17,6 +19,8 @@ func NewOptions() (*Opts, error) {
 		srvOpts   *SrvOpts
 		appOpts   *AppOpts
 		mysqlOpts *MysqlOpts
+		redisOpts *RedisOpts
+		grpcOpts  *GrpcOpts
 	)
 
 	vp, err := vips.NewViper("config", "config", "yaml")
@@ -37,6 +41,14 @@ func NewOptions() (*Opts, error) {
 		return nil, err
 	}
 
+	if err = vp.ReadSection("Redis", &redisOpts); err != nil {
+		return nil, err
+	}
+
+	if err = vp.ReadSection("Grpc", &grpcOpts); err != nil {
+		return nil, err
+	}
+
 	srvOpts.ReadTimeout *= time.Second
 	srvOpts.WriteTimeout *= time.Second
 	mysqlOpts.MaxConnectionLifeTime *= time.Minute
@@ -45,5 +57,7 @@ func NewOptions() (*Opts, error) {
 		SrvOpts:   srvOpts,
 		AppOpts:   appOpts,
 		MysqlOpts: mysqlOpts,
+		RedisOpts: redisOpts,
+		GrpcOpts:  grpcOpts,
 	}, nil
 }

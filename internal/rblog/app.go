@@ -7,7 +7,7 @@ import (
 	"log"
 )
 
-func NewApp() (application *app.App) {
+func NewApp(name string) (application *app.App) {
 
 	options, err := opts.NewOptions()
 
@@ -15,7 +15,7 @@ func NewApp() (application *app.App) {
 		log.Fatalln(err)
 	}
 
-	application = app.NewApplication("rblog",
+	application = app.NewApplication(name,
 		"rblog service",
 		app.WithDescription("rblog description"),
 		app.WithVersion("v1.0.0"),
@@ -28,7 +28,6 @@ func NewApp() (application *app.App) {
 func run(opts *opts.Opts) app.RunFunc {
 
 	return func(name string) error {
-
 		configure := cfg.InitApplicationConfigure(opts)
 		return Run(configure)
 	}
