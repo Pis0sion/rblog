@@ -9,7 +9,7 @@ import (
 
 func (a Article) List(ctx *gin.Context) {
 
-	articleList, err := srvv1.NewSrv().Article().GetArticleList(ctx, app.GetPage(ctx), app.GetPageSize(ctx))
+	articleList, err := srvv1.NewSrv().Article().List(ctx, app.GetPage(ctx), app.GetPageSize(ctx))
 
 	if err != nil {
 		app.NewResponse(ctx).ToErrorResponse(errs.NotFound)

@@ -35,6 +35,10 @@ func (e *Errors) Msg() string {
 	return e.msg
 }
 
+func (e *Errors) Error() string {
+	return e.msg
+}
+
 func (e *Errors) Details() []string {
 	return e.details
 }

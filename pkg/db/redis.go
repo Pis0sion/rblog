@@ -5,6 +5,7 @@ import (
 	"github.com/go-redis/redis/v8"
 	uuid "github.com/satori/go.uuid"
 	"log"
+	"net"
 	"strconv"
 	"sync/atomic"
 	"time"
@@ -99,8 +100,7 @@ func getRedisAddress(opts *RedisOptions) (address []string) {
 	}
 
 	if len(address) == 0 && opts.Port != 0 {
-		addr := opts.Host + ":" + strconv.Itoa(opts.Port)
-		address = append(address, addr)
+		address = append(address, net.JoinHostPort(opts.Host, strconv.Itoa(opts.Port)))
 	}
 
 	return address

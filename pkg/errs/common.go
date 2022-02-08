@@ -10,4 +10,6 @@ var (
 	UnauthorizedTokenTimeout  = NewErrors(100005, "鉴权失败")
 	UnauthorizedTokenGenerate = NewErrors(100006, "鉴权失败")
 	TooManyRequests           = NewErrors(100007, "请求过多")
+
+	ArticleNotFound = NewErrors(100008, "article 不存在...")
 )

@@ -36,9 +36,22 @@ func NewValidator(data interface{}) *validation {
 func (v *validation) Validate() error {
 	// validate policy
 	err := v.val.Struct(v.data)
-	if err != nil {
-		return err
+	if err == nil {
+		return nil
 	}
 
-	return nil
+	// this check is only needed when your code could produce
+	// an invalid value for validation such as interface with nil
+	// value most including myself do not usually have code like this.
+	if invalidValidationError, ok := err.(*validator.InvalidValidationError); ok {
+		return invalidValidationError
+	}
+
+	// collect human-readable errors
+	vErrors, _ := err.(validator.ValidationErrors)
+	for _, vError := range vErrors {
+		return vError
+	}
+
+	return err
 }
