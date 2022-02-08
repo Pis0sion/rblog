@@ -28,7 +28,6 @@ func NewApp(name string) (application *app.App) {
 func run(opts *opts.Opts) app.RunFunc {
 
 	return func(name string) error {
-
 		configure := cfg.InitApplicationConfigure(opts)
 		return Run(configure)
 	}

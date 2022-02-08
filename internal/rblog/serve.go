@@ -2,7 +2,6 @@ package rblog
 
 import (
 	"context"
-	"fmt"
 	"github.com/Pis0sion/rblog/internal/pkg/serve"
 	"github.com/Pis0sion/rblog/internal/rblog/cfg"
 	"github.com/Pis0sion/rblog/internal/rblog/dto"
@@ -13,6 +12,8 @@ import (
 	"github.com/Pis0sion/rblog/pkg/db"
 	pb "github.com/Pis0sion/rblogrus/proto/rblog/v1"
 	"google.golang.org/grpc"
+	"net"
+	"strconv"
 )
 
 type ApplicationServe struct {
@@ -91,7 +92,7 @@ func (c *CompleteExtraComponents) New() (*grpcServe, error) {
 	pb.RegisterCacheServer(gServe, cache.NewCache())
 
 	return &grpcServe{
-		address: fmt.Sprintf("%s:%d", c.grpcOptions.Address, c.grpcOptions.Port),
+		address: net.JoinHostPort(c.grpcOptions.Address, strconv.Itoa(c.grpcOptions.Port)),
 		Server:  gServe,
 	}, nil
 }
