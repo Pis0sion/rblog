@@ -3,12 +3,19 @@ package db
 import (
 	"context"
 	"fmt"
+	"go.etcd.io/etcd/api/v3/mvccpb"
 	clientv3 "go.etcd.io/etcd/client/v3"
 	"google.golang.org/grpc"
 	"log"
 	"sync"
 	"time"
 )
+
+type etcdOnCreateFunc func(ctx context.Context, key, value []byte)
+
+type etcdOnModifyFunc func(ctx context.Context, key, preValue, value []byte)
+
+type etcdOnDeleteFunc func(ctx context.Context, key []byte)
 
 type etcdClient struct {
 	cli             *clientv3.Client
@@ -17,6 +24,8 @@ type etcdClient struct {
 
 	leaseID     clientv3.LeaseID
 	leaseLiving bool
+
+	watchers map[string]*etcdWatchers
 
 	onKeepaliveFailure func()
 	stopKeepaliveFunc  func()
@@ -31,6 +40,11 @@ type etcdOptions struct {
 	RequestTimeout int
 	LeaseExpire    int
 	Namespace      string
+}
+
+type etcdWatchers struct {
+	watcher    clientv3.Watcher
+	cancelFunc context.CancelFunc
 }
 
 var (
@@ -69,6 +83,7 @@ func GetEtcdFactory(opts *etcdOptions, defaultOnKeepalive func()) (*etcdClient, 
 		e.cli = cli
 		e.requestTimeout = time.Duration(opts.RequestTimeout) * time.Second
 		e.leaseTTLTimeout = opts.LeaseExpire
+		e.watchers = make(map[string]*etcdWatchers)
 		e.namespace = opts.Namespace
 
 		if err = e.startSession(); err != nil {
@@ -119,6 +134,13 @@ func (e *etcdClient) startSession() error {
 	return nil
 }
 
+func (e *etcdClient) getKeyByNamespace(prefix string) string {
+	if len(e.namespace) == 0 {
+		return prefix
+	}
+	return fmt.Sprintf("%s%s", e.namespace, prefix)
+}
+
 func (e *etcdClient) Close() error {
 	if e.cli == nil {
 		return nil
@@ -142,17 +164,17 @@ func (e *etcdClient) RestartSession() error {
 }
 
 func (e *etcdClient) PutKv(ctx context.Context, key, value string, session bool) error {
-	gctx, cancelFunc := context.WithTimeout(ctx, e.requestTimeout)
+	gCtx, cancelFunc := context.WithTimeout(ctx, e.requestTimeout)
 	defer cancelFunc()
-
+	key = e.getKeyByNamespace(key)
 	if session {
-		if _, err := e.cli.Put(gctx, key, value, clientv3.WithLease(e.leaseID)); err != nil {
+		if _, err := e.cli.Put(gCtx, key, value, clientv3.WithLease(e.leaseID)); err != nil {
 			return err
 		}
 		return nil
 	}
 
-	if _, err := e.cli.Put(gctx, key, value); err != nil {
+	if _, err := e.cli.Put(gCtx, key, value); err != nil {
 		return err
 	}
 
@@ -160,10 +182,10 @@ func (e *etcdClient) PutKv(ctx context.Context, key, value string, session bool)
 }
 
 func (e *etcdClient) GetKv(ctx context.Context, key string) ([]byte, error) {
-	gctx, cancelFunc := context.WithTimeout(ctx, e.requestTimeout)
+	gCtx, cancelFunc := context.WithTimeout(ctx, e.requestTimeout)
 	defer cancelFunc()
-
-	getResp, err := e.cli.Get(gctx, key)
+	key = e.getKeyByNamespace(key)
+	getResp, err := e.cli.Get(gCtx, key)
 	if err != nil {
 		return nil, err
 	}
@@ -173,6 +195,77 @@ func (e *etcdClient) GetKv(ctx context.Context, key string) ([]byte, error) {
 	}
 
 	return getResp.Kvs[0].Value, nil
+}
+
+func (e *etcdClient) DeleteKv(ctx context.Context, key string) ([]byte, error) {
+	gCtx, cancelFunc := context.WithTimeout(ctx, e.requestTimeout)
+	defer cancelFunc()
+
+	key = e.getKeyByNamespace(key)
+	dResp, err := e.cli.Delete(gCtx, key, clientv3.WithPrevKV())
+
+	if err != nil {
+		return nil, err
+	}
+
+	if dResp.Deleted == 1 {
+		return dResp.PrevKvs[0].Value, nil
+	}
+	return nil, nil
+}
+
+func (e *etcdClient) Watch(ctx context.Context, prefix string, onCreate etcdOnCreateFunc, onModify etcdOnModifyFunc, onDelete etcdOnDeleteFunc) error {
+	// if isn't exist
+	if _, ok := e.watchers[prefix]; ok {
+		return fmt.Errorf("watcher prefix %s already registed", prefix)
+	}
+
+	gctx, cancelFunc := context.WithCancel(ctx)
+	watcher := clientv3.NewWatcher(e.cli)
+
+	e.watchers[prefix] = &etcdWatchers{
+		watcher:    watcher,
+		cancelFunc: cancelFunc,
+	}
+
+	prefix = e.getKeyByNamespace(prefix)
+	watchChan := e.cli.Watch(gctx, prefix, clientv3.WithPrefix(), clientv3.WithPrevKV())
+	go func() {
+		for watchResponse := range watchChan {
+			for _, event := range watchResponse.Events {
+				keyByte := event.Kv.Key[len(e.namespace):]
+				if event.PrevKv == nil {
+					// trigger onCreate
+					onCreate(gctx, keyByte, event.Kv.Value)
+				} else {
+					switch event.Type {
+					case mvccpb.PUT:
+						onModify(gctx, keyByte, event.PrevKv.Value, event.Kv.Value)
+					case mvccpb.DELETE:
+						if onDelete != nil {
+							onDelete(gctx, keyByte)
+						}
+					}
+				}
+			}
+		}
+		log.Printf("stopped watch %s", prefix)
+	}()
+
+	return nil
+}
+
+func (e *etcdClient) UnWatch(prefix string) error {
+	if watcher, ok := e.watchers[prefix]; ok {
+		delete(e.watchers, prefix)
+		return watcher.Cancel()
+	}
+	return nil
+}
+
+func (w *etcdWatchers) Cancel() error {
+	w.cancelFunc()
+	return w.watcher.Close()
 }
 
 func defaultKeepaliveFailure() {
