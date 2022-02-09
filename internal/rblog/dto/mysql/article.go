@@ -30,7 +30,9 @@ func (a *articles) CreateArticle(ctx context.Context, article *metav1.Article) e
 
 func (a *articles) GetArticleList(ctx context.Context, page, pageSize int) (*metav1.ArticleList, error) {
 	articleList := metav1.ArticleList{}
-	if err := a.dbIns.Offset((page - 1) * pageSize).Limit(pageSize).Find(&articleList.Items).Offset(-1).Limit(-1).Count(&articleList.TotalCount).Error; err != nil {
+	if err := a.dbIns.Offset((page - 1) * pageSize).Limit(pageSize).
+		Find(&articleList.Items).Offset(-1).Limit(-1).
+		Count(&articleList.TotalCount).Error; err != nil {
 		return nil, err
 	}
 	return &articleList, nil
