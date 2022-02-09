@@ -184,6 +184,7 @@ func (e *etcdClient) PutKv(ctx context.Context, key, value string, session bool)
 func (e *etcdClient) GetKv(ctx context.Context, key string) ([]byte, error) {
 	gCtx, cancelFunc := context.WithTimeout(ctx, e.requestTimeout)
 	defer cancelFunc()
+
 	key = e.getKeyByNamespace(key)
 	getResp, err := e.cli.Get(gCtx, key)
 	if err != nil {
