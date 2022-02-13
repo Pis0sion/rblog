@@ -270,5 +270,6 @@ func (w *etcdWatchers) Cancel() error {
 }
 
 func defaultKeepaliveFailure() {
+
 	log.Println("failed keepalive lease etcd server")
 }
