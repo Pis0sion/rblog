@@ -1,7 +1,7 @@
 package app
 
 import (
-	"github.com/Pis0sion/rblog/pkg/errs"
+	"github.com/Pis0sion/rblog/lib/errs"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )

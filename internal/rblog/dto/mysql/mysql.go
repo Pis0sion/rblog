@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/Pis0sion/rblog/internal/rblog/dto"
 	"github.com/Pis0sion/rblog/internal/rblog/opts"
-	"github.com/Pis0sion/rblog/pkg/db"
+	"github.com/Pis0sion/rblog/lib/db"
 	"gorm.io/gorm"
 	"sync"
 )

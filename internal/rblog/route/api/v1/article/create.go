@@ -2,8 +2,8 @@ package article
 
 import (
 	v1 "github.com/Pis0sion/rblog/internal/rblog/srv/v1"
-	"github.com/Pis0sion/rblog/pkg/app"
-	"github.com/Pis0sion/rblog/pkg/errs"
+	"github.com/Pis0sion/rblog/lib/app"
+	"github.com/Pis0sion/rblog/lib/errs"
 	"github.com/gin-gonic/gin"
 )
 
