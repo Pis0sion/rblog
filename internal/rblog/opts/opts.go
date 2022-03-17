@@ -1,7 +1,7 @@
 package opts
 
 import (
-	"github.com/Pis0sion/rblog/pkg/vips"
+	"github.com/Pis0sion/rblog/lib/vips"
 	"time"
 )
 

@@ -3,7 +3,7 @@ package rblog
 import (
 	"github.com/Pis0sion/rblog/internal/rblog/cfg"
 	"github.com/Pis0sion/rblog/internal/rblog/opts"
-	"github.com/Pis0sion/rblog/pkg/app"
+	"github.com/Pis0sion/rblog/lib/app"
 	"log"
 )
 
